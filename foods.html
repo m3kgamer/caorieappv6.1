@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manage your food database - add, edit, and delete foods">
+    <title>Food Management - NutriTrack</title>
+
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Animated Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Navigation -->
+    <nav class="glass-card mx-6 mt-6 rounded-2xl px-8 py-4 fade-in">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold gradient-text">NutriTrack</h1>
+            <div class="flex gap-4">
+                <a href="index.html"
+                    class="px-6 py-2 text-gray-700 hover:bg-white hover:bg-opacity-50 rounded-lg font-medium transition-all">
+                    Calculator
+                </a>
+                <a href="foods.html"
+                    class="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium shadow-md hover:shadow-xl transition-all hover:scale-105">
+                    Foods
+                </a>
+                <a href="history.html"
+                    class="px-6 py-2 text-gray-700 hover:bg-white hover:bg-opacity-50 rounded-lg font-medium transition-all">
+                    History
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-12 fade-in">
+            <div>
+                <h2 class="text-5xl font-bold gradient-text mb-4">Food Database</h2>
+                <p class="text-gray-600 text-lg">Manage your food library</p>
+            </div>
+            <button id="addFoodBtn"
+                class="btn-primary px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                <span class="relative z-10 flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Add Food
+                </span>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-8 slide-in-left">
+            <div class="glass-card p-4 rounded-2xl">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="Search foods by name or category..."
+                        class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    <svg class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Foods Grid -->
+        <div id="foodsList" class="responsive-grid">
+            <!-- Foods will be rendered here by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Add/Edit Food Modal -->
+    <div id="foodModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-6">
+        <div class="glass-card p-8 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto scale-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modalTitle" class="text-3xl font-bold gradient-text">Add New Food</h3>
+                <button id="closeModal" class="text-gray-500 hover:text-gray-700 hover:scale-110 transition-all">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="foodForm" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Food Name -->
+                    <div>
+                        <label for="foodName" class="block text-sm font-semibold text-gray-700 mb-2">Food Name *</label>
+                        <input type="text" id="foodName" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="e.g., Chicken Breast">
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="foodCategory"
+                            class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                        <input type="text" id="foodCategory"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="e.g., Protein, Vegetables">
+                    </div>
+
+                    <!-- Serving Size -->
+                    <div>
+                        <label for="servingSize" class="block text-sm font-semibold text-gray-700 mb-2">Serving Size
+                            *</label>
+                        <input type="text" id="servingSize" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="e.g., 100g, 1 cup">
+                    </div>
+
+                    <!-- Calories -->
+                    <div>
+                        <label for="calories" class="block text-sm font-semibold text-gray-700 mb-2">Calories *</label>
+                        <input type="number" id="calories" required min="0" step="0.1"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="0">
+                    </div>
+
+                    <!-- Protein -->
+                    <div>
+                        <label for="protein" class="block text-sm font-semibold text-gray-700 mb-2">Protein (g)
+                            *</label>
+                        <input type="number" id="protein" required min="0" step="0.1"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="0">
+                    </div>
+
+                    <!-- Carbs -->
+                    <div>
+                        <label for="carbs" class="block text-sm font-semibold text-gray-700 mb-2">Carbs (g) *</label>
+                        <input type="number" id="carbs" required min="0" step="0.1"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="0">
+                    </div>
+
+                    <!-- Fat -->
+                    <div>
+                        <label for="fat" class="block text-sm font-semibold text-gray-700 mb-2">Fat (g) *</label>
+                        <input type="number" id="fat" required min="0" step="0.1"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="0">
+                    </div>
+
+                    <!-- Salt -->
+                    <div>
+                        <label for="salt" class="block text-sm font-semibold text-gray-700 mb-2">Salt (g) *</label>
+                        <input type="number" id="salt" required min="0" step="0.001"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="0">
+                    </div>
+                </div>
+
+                <!-- Barcode Upload Section -->
+                <div class="border-t pt-6 mt-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">
+                        Barcode *
+                        <span class="text-xs font-normal text-gray-500">(Required - Choose input method)</span>
+                    </label>
+
+                    <!-- Barcode Input Method Selector -->
+                    <div class="flex gap-2 mb-4">
+                        <button type="button" id="galleryMethodBtn"
+                            class="flex-1 px-4 py-2 border-2 border-blue-500 bg-blue-50 text-blue-700 rounded-lg font-medium transition-all hover:bg-blue-100">
+                            📁 Gallery
+                        </button>
+                        <button type="button" id="cameraMethodBtn"
+                            class="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg font-medium transition-all hover:bg-gray-50">
+                            📷 Scan
+                        </button>
+                        <button type="button" id="manualMethodBtn"
+                            class="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg font-medium transition-all hover:bg-gray-50">
+                            ⌨️ Manual
+                        </button>
+                    </div>
+
+                    <!-- Gallery Upload Method -->
+                    <div id="galleryMethod" class="barcode-method">
+                        <div class="mb-4">
+                            <input type="file" id="barcodeImage" accept="image/*"
+                                class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+                    </div>
+
+                    <!-- Camera Scan Method -->
+                    <div id="cameraMethod" class="barcode-method hidden">
+                        <button type="button" id="scanBarcodeInFormBtn"
+                            class="w-full px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+                                </path>
+                            </svg>
+                            <span>Scan Barcode with Camera</span>
+                        </button>
+                        <div id="scannedBarcodeDisplay"
+                            class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p class="text-sm text-green-700">✓ Scanned: <span id="scannedBarcodeValue"
+                                    class="font-mono font-bold"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Manual Entry Method -->
+                    <div id="manualMethod" class="barcode-method hidden">
+                        <input type="text" id="manualBarcodeInput"
+                            placeholder="Enter barcode number (e.g., 1234567890123)"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono"
+                            pattern="[0-9]{8,13}" maxlength="13">
+                        <p class="text-xs text-gray-500 mt-2">Enter 8-13 digit barcode number</p>
+                    </div>
+
+                    <!-- Barcode Preview -->
+                    <div id="barcodePreview" class="hidden mt-4">
+                        <p class="text-sm font-medium text-gray-700 mb-2">Barcode Preview:</p>
+                        <div class="relative inline-block">
+                            <img id="barcodePreviewImage" src="" alt="Barcode preview"
+                                class="max-w-full h-32 border-2 border-gray-300 rounded-lg shadow-sm">
+                            <button type="button" id="removeBarcodeBtn"
+                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Buttons -->
+                <div class="flex gap-4 pt-4">
+                    <button type="submit"
+                        class="flex-1 btn-primary px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                        <span class="relative z-10">Save Food</span>
+                    </button>
+                    <button type="button" id="cancelBtn"
+                        class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-all">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Barcode Scanner Modal -->
+    <div id="scannerModal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center">
+        <div class="glass-card p-6 rounded-2xl max-w-lg w-full mx-4 scale-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Scan Barcode</h3>
+                <button id="closeScannerBtn" class="text-gray-500 hover:text-gray-700 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="scannerContainer" class="relative bg-black rounded-xl overflow-hidden mb-4" style="height: 400px;">
+                <div id="interactive" class="viewport w-full h-full"></div>
+
+                <!-- Scanning overlay -->
+                <div id="scannerOverlay" class="absolute inset-0 pointer-events-none">
+                    <div class="absolute inset-0 border-4 border-green-500 opacity-0" id="detectionBox"></div>
+                    <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-green-500" id="scanLine"></div>
+                </div>
+            </div>
+
+            <p id="scannerStatus" class="text-center text-sm text-gray-600">
+                Point your camera at a barcode...
+            </p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+    <script src="storage.js"></script>
+    <script src="barcode-db.js"></script>
+    <script src="barcode-scanner.js"></script>
+    <script src="foods.js"></script>
+</body>
+
+</html>
