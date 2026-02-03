@@ -105,27 +105,46 @@ class FoodManager {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validate file type
+    // التحقق من نوع الملف
     if (!file.type.startsWith('image/')) {
-      this.showToast('Please upload a valid image file', 'error');
+      this.showToast('يرجى تحميل ملف صورة صالح', 'error');
       this.barcodeInput.value = '';
       return;
     }
 
-    // Validate file size (max 5MB)
+    // التحقق من حجم الملف (بحد أقصى 5 ميجابايت)
     if (file.size > 5 * 1024 * 1024) {
-      this.showToast('Image size must be less than 5MB', 'error');
+      this.showToast('يجب أن يكون حجم الصورة أقل من 5 ميجابايت', 'error');
       this.barcodeInput.value = '';
       return;
     }
 
     this.currentBarcodeFile = file;
+    this.isDecoding = true; // Add decoding flag
 
-    // Show preview
+    // Show preview and try to decode
     const reader = new FileReader();
-    reader.onload = (e) => {
-      this.barcodePreviewImage.src = e.target.result;
+    reader.onload = async (e) => {
+      const imageData = e.target.result;
+      this.barcodePreviewImage.src = imageData;
       this.barcodePreview.classList.remove('hidden');
+
+      // محاولة فك تشفير الصورة المرفوعة تلقائياً
+      this.showToast('جاري استكشاف الباركود في الصورة...', 'info');
+      const barcode = await BarcodeScanner.decodeImage(imageData);
+      if (barcode) {
+        this.currentBarcodeValue = barcode;
+        // Update display if we added one
+        const detectionDisplay = document.getElementById('detectedBarcodeDisplay');
+        if (detectionDisplay) {
+          detectionDisplay.textContent = barcode;
+          document.getElementById('detectedBarcodeSection')?.classList.remove('hidden');
+        }
+        this.showToast('✓ تم العثور على الباركود!', 'success');
+      } else {
+        this.showToast('لم يتم العثور على باركود. يمكنك حفظه أو إدخاله يدوياً.', 'info');
+      }
+      this.isDecoding = false;
     };
     reader.readAsDataURL(file);
   }
@@ -138,6 +157,7 @@ class FoodManager {
     this.barcodePreview.classList.add('hidden');
     this.scannedBarcodeDisplay?.classList.add('hidden');
     this.manualBarcodeInput.value = '';
+    document.getElementById('detectedBarcodeSection')?.classList.add('hidden');
   }
 
   switchBarcodeMethod(method) {
@@ -197,8 +217,8 @@ class FoodManager {
           <svg class="w-20 h-20 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
           </svg>
-          <p class="text-xl mb-2">No foods yet</p>
-          <p class="text-sm">Click "Add Food" to create your first entry</p>
+          <p class="text-xl mb-2">لا يوجد أطعمة حتى الآن</p>
+          <p class="text-sm">اضغط على "إضافة طعام" لإنشاء أول إدخال لك</p>
         </div>
       `;
       return;
@@ -210,9 +230,9 @@ class FoodManager {
           <div class="flex-1">
             <h3 class="text-xl font-bold text-gray-800 mb-1">${food.name}</h3>
             <span class="inline-block px-3 py-1 text-xs rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700">
-              ${food.category || 'Other'}
+              ${food.category || 'أخرى'}
             </span>
-            ${food.hasBarcode ? '<span class="ml-2 inline-block px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">📷 Has Barcode</span>' : ''}
+            ${food.hasBarcode ? '<span class="mr-2 inline-block px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">📷 يحتوي على باركود</span>' : ''}
           </div>
           <div class="flex gap-2">
             <button onclick="foodManager.editFood('${food.id}')" 
@@ -230,32 +250,32 @@ class FoodManager {
           </div>
         </div>
         
-        ${food.hasBarcode ? `<div class="mb-4" id="barcode-container-${food.id}"><div class="text-sm text-gray-500 italic">Loading barcode...</div></div>` : ''}
+        ${food.hasBarcode ? `<div class="mb-4" id="barcode-container-${food.id}"><div class="text-sm text-gray-500 italic">جاري تحميل الباركود...</div></div>` : ''}
         
         <div class="mb-4 text-sm text-gray-600">
-          <span class="font-medium">Serving Size:</span> ${food.servingSize}
+          <span class="font-medium">حجم الحصة:</span> ${food.servingSize}
         </div>
         
         <div class="grid grid-cols-3 gap-3">
           <div class="text-center p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
             <div class="text-2xl font-bold text-orange-600">${food.calories}</div>
-            <div class="text-xs text-gray-600 uppercase mt-1">Calories</div>
+            <div class="text-xs text-gray-600 uppercase mt-1">سعرات</div>
           </div>
           <div class="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-            <div class="text-2xl font-bold text-blue-600">${food.protein}g</div>
-            <div class="text-xs text-gray-600 uppercase mt-1">Protein</div>
+            <div class="text-2xl font-bold text-blue-600">${food.protein}جم</div>
+            <div class="text-xs text-gray-600 uppercase mt-1">بروتين</div>
           </div>
           <div class="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
-            <div class="text-2xl font-bold text-green-600">${food.carbs}g</div>
-            <div class="text-xs text-gray-600 uppercase mt-1">Carbs</div>
+            <div class="text-2xl font-bold text-green-600">${food.carbs}جم</div>
+            <div class="text-xs text-gray-600 uppercase mt-1">كربوهيدرات</div>
           </div>
           <div class="text-center p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl">
-            <div class="text-2xl font-bold text-yellow-600">${food.fat}g</div>
-            <div class="text-xs text-gray-600 uppercase mt-1">Fat</div>
+            <div class="text-2xl font-bold text-yellow-600">${food.fat}جم</div>
+            <div class="text-xs text-gray-600 uppercase mt-1">دهون</div>
           </div>
-          <div class="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl col-span-2">
-            <div class="text-2xl font-bold text-purple-600">${food.salt}g</div>
-            <div class="text-xs text-gray-600 uppercase mt-1">Salt</div>
+          <div class="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl col-span-2 text-right px-4">
+            <div class="text-2xl font-bold text-purple-600">${food.salt}جم</div>
+            <div class="text-xs text-gray-600 uppercase mt-1">ملح</div>
           </div>
         </div>
       </div>
@@ -269,7 +289,7 @@ class FoodManager {
           const container = document.getElementById(`barcode-container-${food.id}`);
           if (container) {
             container.innerHTML = `
-                            <p class="text-xs text-gray-600 mb-2">Barcode:</p>
+                            <p class="text-xs text-gray-600 mb-2">الباركود:</p>
                             <img src="${barcodeData.imageData}" alt="Barcode" class="h-20 border border-gray-300 rounded-lg shadow-sm">
                         `;
           }
@@ -280,7 +300,7 @@ class FoodManager {
 
   async openModal(food = null) {
     this.editingFoodId = food ? food.id : null;
-    this.modalTitle.textContent = food ? 'Edit Food' : 'Add New Food';
+    this.modalTitle.textContent = food ? 'تعديل الطعام' : 'إضافة طعام جديد';
 
     if (food) {
       document.getElementById('foodName').value = food.name;
@@ -324,6 +344,16 @@ class FoodManager {
   }
 
   async saveFood() {
+    // Wait for decoding to finish if it's in progress
+    if (this.isDecoding) {
+      this.showToast('جاري معالجة الباركود... يرجى الانتظار ثانية.', 'info');
+      let attempts = 0;
+      while (this.isDecoding && attempts < 10) {
+        await new Promise(r => setTimeout(r, 500));
+        attempts++;
+      }
+    }
+
     const formData = {
       name: document.getElementById('foodName').value,
       category: document.getElementById('foodCategory').value,
@@ -340,15 +370,16 @@ class FoodManager {
     let barcodeValue = null;
 
     // Get barcode value based on method
-    if (this.currentBarcodeMethod === 'camera') {
+    if (this.currentBarcodeMethod === 'camera' || this.currentBarcodeMethod === 'gallery') {
       barcodeValue = this.currentBarcodeValue;
     } else if (this.currentBarcodeMethod === 'manual') {
       barcodeValue = this.manualBarcodeInput.value.trim();
     }
 
-    // Validate barcode is provided
-    if (!this.currentBarcodeFile && !barcodeValue) {
-      this.showToast('Please provide a barcode (upload, scan, or enter manually)', 'error');
+    // Validate barcode is provided ONLY for new foods
+    const hasExistingBarcode = this.editingFoodId && (await BarcodeDB.hasBarcode(this.editingFoodId));
+    if (!this.currentBarcodeFile && !barcodeValue && !hasExistingBarcode) {
+      this.showToast('يرجى تقديم باركود (تحميل، مسح، أو إدخال يدوي)', 'error');
       return;
     }
 
@@ -368,7 +399,7 @@ class FoodManager {
         await BarcodeDB.saveBarcodeImage(this.editingFoodId, null, barcodeValue);
       }
 
-      this.showToast('Food updated successfully!', 'success');
+      this.showToast('تم تحديث الطعام بنجاح!', 'success');
     } else {
       // New food - barcode is required
       formData.hasBarcode = true;
@@ -384,7 +415,7 @@ class FoodManager {
         await BarcodeDB.saveBarcodeImage(foodId, null, barcodeValue);
       }
 
-      this.showToast('Food added successfully!', 'success');
+      this.showToast('تم إضافة الطعام بنجاح!', 'success');
     }
 
     this.closeModal();
@@ -400,10 +431,10 @@ class FoodManager {
 
   deleteFood(id) {
     const food = StorageManager.getFoodById(id);
-    if (confirm(`Are you sure you want to delete "${food.name}"?`)) {
+    if (confirm(`هل أنت متأكد من حذف "${food.name}"؟`)) {
       StorageManager.deleteFood(id);
       this.renderFoods();
-      this.showToast('Food deleted successfully!', 'success');
+      this.showToast('تم حذف الطعام بنجاح!', 'success');
     }
   }
 

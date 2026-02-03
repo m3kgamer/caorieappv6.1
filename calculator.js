@@ -7,6 +7,8 @@ class Calculator {
     this.selectedFoodsList = document.getElementById('selectedFoodsList');
     this.totalsDisplay = document.getElementById('totalsDisplay');
     this.saveBtn = document.getElementById('saveCalculation');
+    this.voiceBtn = document.getElementById('voiceSearchBtn');
+    this.searchInputParent = this.searchInput.parentElement;
 
     this.init();
   }
@@ -14,7 +16,18 @@ class Calculator {
   init() {
     this.renderFoodList();
     this.attachEventListeners();
-    this.updateTotals();
+    this.loadDraft(); // Load saved state
+  }
+
+  loadDraft() {
+    const draft = StorageManager.getCalcDraft();
+    if (draft.length > 0) {
+      this.selectedFoods = draft;
+      this.renderSelectedFoods();
+      this.updateTotals();
+    } else {
+      this.updateTotals(); // Ensure totals are zeroed out if no draft
+    }
   }
 
   attachEventListeners() {
@@ -53,6 +66,16 @@ class Calculator {
       });
     }
 
+    // Voice Control
+    if (this.voiceBtn) {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        this.voiceBtn.addEventListener('click', () => this.startVoiceRecognition());
+      } else {
+        this.voiceBtn.style.display = 'none'; // Hide if not supported
+        console.log('Web Speech API not supported');
+      }
+    }
+
     if (searchManualBtn) {
       searchManualBtn.addEventListener('click', () => {
         const barcodeInput = document.getElementById('manualBarcodeCalc');
@@ -79,13 +102,13 @@ class Calculator {
       const food = StorageManager.getFoodById(foodId);
       if (food) {
         this.addFood(foodId);
-        this.showToast(`✓ Added ${food.name} via barcode scan!`, 'success');
+        this.showToast(`✓ تم إضافة ${food.name} عن طريق مسح الباركود!`, 'success');
         return;
       }
     }
 
     // If no match found, show error
-    this.showToast('⚠ No food found with this barcode. Please add it to your foods first.', 'error');
+    this.showToast('⚠ لم يتم العثور على طعام بهذا الباركود. يرجى إضافته للأطعمة أولاً.', 'error');
   }
 
   uploadBarcodeImage() {
@@ -98,16 +121,80 @@ class Calculator {
       const file = e.target.files[0];
       if (!file) return;
 
-      this.showToast('Processing barcode image...', 'info');
+      this.showToast('جاري معالجة صورة الباركود...', 'info');
 
-      // Here you would decode the barcode from the image
-      // For now, we'll just show a message that this feature needs a barcode decoder
-      this.showToast('📷 Barcode image uploaded. Note: Automatic barcode decoding from images is not yet implemented. Please use camera scan or manual entry.', 'info');
+      try {
+        const imageUrl = URL.createObjectURL(file);
+        const barcode = await BarcodeScanner.decodeImage(imageUrl);
+        URL.revokeObjectURL(imageUrl);
 
-      // TODO: Integrate a barcode decoding library like jsQR or Quagga to decode the uploaded image
+        if (barcode) {
+          this.findAndAddFoodByBarcode(barcode);
+        } else {
+          this.showToast('تعذر اكتشاف الباركود. يرجى محاولة صورة أكثر وضوحاً.', 'error');
+        }
+      } catch (error) {
+        console.error('Decoding error:', error);
+        this.showToast('خطأ في معالجة الصورة.', 'error');
+      }
     };
 
     fileInput.click();
+  }
+
+  startVoiceRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = 'ar-SA';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      this.showToast('جاري الاستماع...', 'info');
+      this.voiceBtn.classList.add('animate-pulse', 'ring-4', 'ring-red-300');
+    };
+
+    recognition.onend = () => {
+      this.voiceBtn.classList.remove('animate-pulse', 'ring-4', 'ring-red-300');
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      console.log('Voice result:', transcript);
+      this.showToast(`سمعت: "${transcript}"`, 'info');
+      this.findAndAddFoodByVoice(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Voice error:', event.error);
+      this.showToast('فشل التعرف على الصوت. يرجى المحاولة مرة أخرى.', 'error');
+    };
+
+    recognition.start();
+  }
+
+  findAndAddFoodByVoice(query) {
+    const foods = StorageManager.searchFoods(query);
+
+    // Logic: 
+    // 1. Exact match? Add it.
+    // 2. Single match? Add it.
+    // 3. Multiple matches? Add the first one.
+    // 4. No match? Show error.
+
+    if (foods.length === 0) {
+      this.showToast(`لم يتم العثور على طعام يطابق "${query}"`, 'error');
+      return;
+    }
+
+    // Try to find exact match
+    const exactMatch = foods.find(f => f.name.toLowerCase() === query.toLowerCase());
+
+    const foodToAdd = exactMatch || foods[0];
+
+    this.addFood(foodToAdd.id);
+    // showToast is handled inside addFood, but we can be specific
   }
 
   handleSearch(query) {
@@ -124,8 +211,8 @@ class Calculator {
           <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
-          <p class="text-lg">No foods found</p>
-          <a href="foods.html" class="text-blue-600 hover:text-blue-700 mt-2 inline-block">Add foods first</a>
+          <p class="text-lg">لم يتم العثور على أطعمة</p>
+          <a href="foods.html" class="text-blue-600 hover:text-blue-700 mt-2 inline-block">أضف أطعمة أولاً</a>
         </div>
       `;
       return;
@@ -138,22 +225,22 @@ class Calculator {
         <div class="flex justify-between items-start mb-2">
           <h3 class="font-semibold text-gray-800">${food.name}</h3>
           <span class="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700">
-            ${food.category || 'Other'}
+            ${food.category || 'أخرى'}
           </span>
         </div>
         <p class="text-sm text-gray-600 mb-3">${food.servingSize}</p>
         <div class="grid grid-cols-3 gap-2 text-xs">
           <div class="text-center p-2 bg-white bg-opacity-50 rounded-lg">
             <div class="font-semibold text-orange-600">${food.calories}</div>
-            <div class="text-gray-500">cal</div>
+            <div class="text-gray-500">سعرة</div>
           </div>
           <div class="text-center p-2 bg-white bg-opacity-50 rounded-lg">
-            <div class="font-semibold text-blue-600">${food.protein}g</div>
-            <div class="text-gray-500">protein</div>
+            <div class="font-semibold text-blue-600">${food.protein}جم</div>
+            <div class="text-gray-500">بروتين</div>
           </div>
           <div class="text-center p-2 bg-white bg-opacity-50 rounded-lg">
-            <div class="font-semibold text-green-600">${food.carbs}g</div>
-            <div class="text-gray-500">carbs</div>
+            <div class="font-semibold text-green-600">${food.carbs}جم</div>
+            <div class="text-gray-500">كربو</div>
           </div>
         </div>
       </div>
@@ -175,13 +262,16 @@ class Calculator {
     this.updateTotals();
 
     // Show success feedback
-    this.showToast(`Added ${food.name}`);
+    this.showToast(`تم إضافة ${food.name}`);
+
+    StorageManager.saveCalcDraft(this.selectedFoods); // Save draft
   }
 
   removeFood(uniqueId) {
     this.selectedFoods = this.selectedFoods.filter(f => f.uniqueId !== uniqueId);
     this.renderSelectedFoods();
     this.updateTotals();
+    StorageManager.saveCalcDraft(this.selectedFoods); // Save draft
   }
 
   updateQuantity(uniqueId, quantity) {
@@ -189,6 +279,7 @@ class Calculator {
     if (food && quantity > 0) {
       food.quantity = parseFloat(quantity);
       this.updateTotals();
+      StorageManager.saveCalcDraft(this.selectedFoods); // Save draft
     }
   }
 
@@ -199,7 +290,7 @@ class Calculator {
           <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
           </svg>
-          <p>Select foods to calculate</p>
+          <p>اختر الأطعمة للحساب</p>
         </div>
       `;
       return;
@@ -220,13 +311,13 @@ class Calculator {
           </button>
         </div>
         <div class="flex items-center gap-3">
-          <label class="text-sm text-gray-600">Grams:</label>
+          <label class="text-sm text-gray-600">الجرام:</label>
           <input type="number" 
                  value="${food.quantity}" 
                  min="1" 
                  step="1"
                  onchange="calculator.updateQuantity('${food.uniqueId}', this.value)"
-                 class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                 class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right">
         </div>
       </div>
     `).join('');
@@ -248,23 +339,23 @@ class Calculator {
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div class="glass-card p-6 rounded-2xl text-center scale-in">
           <div class="text-3xl font-bold gradient-text mb-2">${Math.round(totals.calories)}</div>
-          <div class="text-sm text-gray-600 uppercase tracking-wide">Calories</div>
+          <div class="text-sm text-gray-600 uppercase tracking-wide">سعرات</div>
         </div>
         <div class="glass-card p-6 rounded-2xl text-center scale-in" style="animation-delay: 0.1s">
-          <div class="text-3xl font-bold text-blue-600 mb-2">${totals.protein.toFixed(1)}g</div>
-          <div class="text-sm text-gray-600 uppercase tracking-wide">Protein</div>
+          <div class="text-3xl font-bold text-blue-600 mb-2">${totals.protein.toFixed(1)}جم</div>
+          <div class="text-sm text-gray-600 uppercase tracking-wide">البروتين</div>
         </div>
         <div class="glass-card p-6 rounded-2xl text-center scale-in" style="animation-delay: 0.2s">
-          <div class="text-3xl font-bold text-green-600 mb-2">${totals.carbs.toFixed(1)}g</div>
-          <div class="text-sm text-gray-600 uppercase tracking-wide">Carbs</div>
+          <div class="text-3xl font-bold text-green-600 mb-2">${totals.carbs.toFixed(1)}جم</div>
+          <div class="text-sm text-gray-600 uppercase tracking-wide">الكربو</div>
         </div>
         <div class="glass-card p-6 rounded-2xl text-center scale-in" style="animation-delay: 0.3s">
-          <div class="text-3xl font-bold text-yellow-600 mb-2">${totals.fat.toFixed(1)}g</div>
-          <div class="text-sm text-gray-600 uppercase tracking-wide">Fat</div>
+          <div class="text-3xl font-bold text-yellow-600 mb-2">${totals.fat.toFixed(1)}جم</div>
+          <div class="text-sm text-gray-600 uppercase tracking-wide">الدهون</div>
         </div>
         <div class="glass-card p-6 rounded-2xl text-center scale-in" style="animation-delay: 0.4s">
-          <div class="text-3xl font-bold text-purple-600 mb-2">${totals.salt.toFixed(2)}g</div>
-          <div class="text-sm text-gray-600 uppercase tracking-wide">Salt</div>
+          <div class="text-3xl font-bold text-purple-600 mb-2">${totals.salt.toFixed(2)}جم</div>
+          <div class="text-sm text-gray-600 uppercase tracking-wide">الملح</div>
         </div>
       </div>
     `;
@@ -307,7 +398,8 @@ class Calculator {
     };
 
     StorageManager.saveCalculation(calculation);
-    this.showToast('Calculation saved to history!', 'success');
+    StorageManager.clearCalcDraft(); // Clear draft after saving
+    this.showToast('تم حفظ الحساب في السجل!', 'success');
 
     // Clear selection after save
     setTimeout(() => {

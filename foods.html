@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Manage your food database - add, edit, and delete foods">
-    <title>Food Management - NutriTrack</title>
+    <meta name="description" content="إدارة قاعدة بيانات الأطعمة - إضافة وتعديل وحذف الأطعمة">
+    <title>إدارة الأطعمة - NutriTrack</title>
 
     <!-- TailwindCSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,15 +26,15 @@
             <div class="flex gap-4">
                 <a href="index.html"
                     class="px-6 py-2 text-gray-700 hover:bg-white hover:bg-opacity-50 rounded-lg font-medium transition-all">
-                    Calculator
+                    الحاسبة
                 </a>
                 <a href="foods.html"
                     class="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium shadow-md hover:shadow-xl transition-all hover:scale-105">
-                    Foods
+                    الأطعمة
                 </a>
                 <a href="history.html"
                     class="px-6 py-2 text-gray-700 hover:bg-white hover:bg-opacity-50 rounded-lg font-medium transition-all">
-                    History
+                    السجل
                 </a>
             </div>
         </div>
@@ -46,8 +45,8 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-12 fade-in">
             <div>
-                <h2 class="text-5xl font-bold gradient-text mb-4">Food Database</h2>
-                <p class="text-gray-600 text-lg">Manage your food library</p>
+                <h2 class="text-5xl font-bold gradient-text mb-4">قاعدة بيانات الأطعمة</h2>
+                <p class="text-gray-600 text-lg">إدارة مكتبة الأطعمة الخاصة بك</p>
             </div>
             <button id="addFoodBtn"
                 class="btn-primary px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105">
@@ -56,18 +55,18 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
-                    Add Food
+                    إضافة طعام
                 </span>
             </button>
         </div>
 
         <!-- Search Bar -->
-        <div class="mb-8 slide-in-left">
+        <div class="mb-8 slide-in-right">
             <div class="glass-card p-4 rounded-2xl">
                 <div class="relative">
-                    <input type="text" id="searchInput" placeholder="Search foods by name or category..."
-                        class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    <svg class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none"
+                    <input type="text" id="searchInput" placeholder="ابحث عن الطعام بالاسم أو الفئة..."
+                        class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-right">
+                    <svg class="w-5 h-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -78,7 +77,7 @@
 
         <!-- Foods Grid -->
         <div id="foodsList" class="responsive-grid">
-            <!-- Foods will be rendered here by JavaScript -->
+            <!-- سيتم عرض الأطعمة هنا بواسطة جافا سكريبت -->
         </div>
     </main>
 
@@ -87,7 +86,7 @@
         class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-6">
         <div class="glass-card p-8 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto scale-in">
             <div class="flex justify-between items-center mb-6">
-                <h3 id="modalTitle" class="text-3xl font-bold gradient-text">Add New Food</h3>
+                <h3 id="modalTitle" class="text-3xl font-bold gradient-text text-right">إضافة طعام جديد</h3>
                 <button id="closeModal" class="text-gray-500 hover:text-gray-700 hover:scale-110 transition-all">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -96,96 +95,98 @@
                 </button>
             </div>
 
-            <form id="foodForm" class="space-y-6">
+            <form id="foodForm" class="space-y-6 text-right">
                 <div class="grid md:grid-cols-2 gap-6">
                     <!-- Food Name -->
                     <div>
-                        <label for="foodName" class="block text-sm font-semibold text-gray-700 mb-2">Food Name *</label>
+                        <label for="foodName" class="block text-sm font-semibold text-gray-700 mb-2">اسم الطعام
+                            *</label>
                         <input type="text" id="foodName" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            placeholder="e.g., Chicken Breast">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-right"
+                            placeholder="مثال: صدر دجاج">
                     </div>
 
                     <!-- Category -->
                     <div>
-                        <label for="foodCategory"
-                            class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                        <label for="foodCategory" class="block text-sm font-semibold text-gray-700 mb-2">الفئة</label>
                         <input type="text" id="foodCategory"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            placeholder="e.g., Protein, Vegetables">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-right"
+                            placeholder="مثال: بروتين، خضروات">
                     </div>
 
                     <!-- Serving Size -->
                     <div>
-                        <label for="servingSize" class="block text-sm font-semibold text-gray-700 mb-2">Serving Size
+                        <label for="servingSize" class="block text-sm font-semibold text-gray-700 mb-2">حجم الحصة
                             *</label>
                         <input type="text" id="servingSize" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            placeholder="e.g., 100g, 1 cup">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-right"
+                            placeholder="مثال: 100جم، كوب واحد">
                     </div>
 
                     <!-- Calories -->
                     <div>
-                        <label for="calories" class="block text-sm font-semibold text-gray-700 mb-2">Calories *</label>
+                        <label for="calories" class="block text-sm font-semibold text-gray-700 mb-2">السعرات الحرارية
+                            *</label>
                         <input type="number" id="calories" required min="0" step="0.1"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-right"
                             placeholder="0">
                     </div>
 
                     <!-- Protein -->
                     <div>
-                        <label for="protein" class="block text-sm font-semibold text-gray-700 mb-2">Protein (g)
+                        <label for="protein" class="block text-sm font-semibold text-gray-700 mb-2">البروتين (جم)
                             *</label>
                         <input type="number" id="protein" required min="0" step="0.1"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-right"
                             placeholder="0">
                     </div>
 
                     <!-- Carbs -->
                     <div>
-                        <label for="carbs" class="block text-sm font-semibold text-gray-700 mb-2">Carbs (g) *</label>
+                        <label for="carbs" class="block text-sm font-semibold text-gray-700 mb-2">الكربوهيدرات (جم)
+                            *</label>
                         <input type="number" id="carbs" required min="0" step="0.1"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-right"
                             placeholder="0">
                     </div>
 
                     <!-- Fat -->
                     <div>
-                        <label for="fat" class="block text-sm font-semibold text-gray-700 mb-2">Fat (g) *</label>
+                        <label for="fat" class="block text-sm font-semibold text-gray-700 mb-2">الدهون (جم) *</label>
                         <input type="number" id="fat" required min="0" step="0.1"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-right"
                             placeholder="0">
                     </div>
 
                     <!-- Salt -->
                     <div>
-                        <label for="salt" class="block text-sm font-semibold text-gray-700 mb-2">Salt (g) *</label>
+                        <label for="salt" class="block text-sm font-semibold text-gray-700 mb-2">الملح (جم) *</label>
                         <input type="number" id="salt" required min="0" step="0.001"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-right"
                             placeholder="0">
                     </div>
                 </div>
 
                 <!-- Barcode Upload Section -->
-                <div class="border-t pt-6 mt-2">
+                <div class="border-t pt-6 mt-2 text-right">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        Barcode *
-                        <span class="text-xs font-normal text-gray-500">(Required - Choose input method)</span>
+                        الباركود *
+                        <span class="text-xs font-normal text-gray-500">(مطلوب - اختر طريقة الإدخال)</span>
                     </label>
 
                     <!-- Barcode Input Method Selector -->
                     <div class="flex gap-2 mb-4">
                         <button type="button" id="galleryMethodBtn"
                             class="flex-1 px-4 py-2 border-2 border-blue-500 bg-blue-50 text-blue-700 rounded-lg font-medium transition-all hover:bg-blue-100">
-                            📁 Gallery
+                            📁 معرض الصور
                         </button>
                         <button type="button" id="cameraMethodBtn"
                             class="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg font-medium transition-all hover:bg-gray-50">
-                            📷 Scan
+                            📷 مسح
                         </button>
                         <button type="button" id="manualMethodBtn"
                             class="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-600 rounded-lg font-medium transition-all hover:bg-gray-50">
-                            ⌨️ Manual
+                            ⌨️ يدوي
                         </button>
                     </div>
 
@@ -206,11 +207,11 @@
                                     d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
                                 </path>
                             </svg>
-                            <span>Scan Barcode with Camera</span>
+                            <span>مسح الباركود بالكاميرا</span>
                         </button>
                         <div id="scannedBarcodeDisplay"
                             class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <p class="text-sm text-green-700">✓ Scanned: <span id="scannedBarcodeValue"
+                            <p class="text-sm text-green-700">✓ تم المسح: <span id="scannedBarcodeValue"
                                     class="font-mono font-bold"></span></p>
                         </div>
                     </div>
@@ -218,15 +219,15 @@
                     <!-- Manual Entry Method -->
                     <div id="manualMethod" class="barcode-method hidden">
                         <input type="text" id="manualBarcodeInput"
-                            placeholder="Enter barcode number (e.g., 1234567890123)"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono"
+                            placeholder="أدخل رقم الباركود (مثلاً: 1234567890123)"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono text-right"
                             pattern="[0-9]{8,13}" maxlength="13">
-                        <p class="text-xs text-gray-500 mt-2">Enter 8-13 digit barcode number</p>
+                        <p class="text-xs text-gray-500 mt-2">أدخل رقم باركود مكون من 8-13 رقمًا</p>
                     </div>
 
                     <!-- Barcode Preview -->
                     <div id="barcodePreview" class="hidden mt-4">
-                        <p class="text-sm font-medium text-gray-700 mb-2">Barcode Preview:</p>
+                        <p class="text-sm font-medium text-gray-700 mb-2">معاينة الباركود:</p>
                         <div class="relative inline-block">
                             <img id="barcodePreviewImage" src="" alt="Barcode preview"
                                 class="max-w-full h-32 border-2 border-gray-300 rounded-lg shadow-sm">
@@ -238,6 +239,12 @@
                                 </svg>
                             </button>
                         </div>
+                        <!-- Detection Value Display -->
+                        <div id="detectedBarcodeSection"
+                            class="hidden mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p class="text-xs text-blue-700 italic">تم اكتشاف رقم الباركود: <span
+                                    id="detectedBarcodeDisplay" class="font-bold font-mono"></span></p>
+                        </div>
                     </div>
                 </div>
 
@@ -245,11 +252,11 @@
                 <div class="flex gap-4 pt-4">
                     <button type="submit"
                         class="flex-1 btn-primary px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105">
-                        <span class="relative z-10">Save Food</span>
+                        <span class="relative z-10">حفظ الطعام</span>
                     </button>
                     <button type="button" id="cancelBtn"
                         class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-all">
-                        Cancel
+                        إلغاء
                     </button>
                 </div>
             </form>
@@ -286,7 +293,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
     <script src="storage.js"></script>
     <script src="barcode-db.js"></script>
     <script src="barcode-scanner.js"></script>

@@ -51,25 +51,37 @@ const BarcodeDB = {
                 const transaction = this.db.transaction([this.storeName], 'readwrite');
                 const objectStore = transaction.objectStore(this.storeName);
 
-                const barcodeData = {
-                    id: `barcode_${foodId}`,
-                    foodId: foodId,
-                    imageData: imageBase64,
-                    barcodeValue: barcodeValue, // Store the actual barcode code
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
+                // Check if already exists to merge
+                const getRequest = objectStore.get(`barcode_${foodId}`);
+
+                getRequest.onsuccess = () => {
+                    const existingData = getRequest.result;
+                    const barcodeData = existingData ? { ...existingData } : {
+                        id: `barcode_${foodId}`,
+                        foodId: foodId,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    if (imageBase64) barcodeData.imageData = imageBase64;
+                    if (barcodeValue !== null) barcodeData.barcodeValue = barcodeValue;
+                    barcodeData.updatedAt = new Date().toISOString();
+
+                    const putRequest = objectStore.put(barcodeData);
+
+                    putRequest.onsuccess = () => {
+                        console.log('Barcode saved/merged successfully for food:', foodId);
+                        resolve(barcodeData);
+                    };
+
+                    putRequest.onerror = () => {
+                        console.error('Failed to put barcode:', putRequest.error);
+                        reject(putRequest.error);
+                    };
                 };
 
-                const request = objectStore.put(barcodeData);
-
-                request.onsuccess = () => {
-                    console.log('Barcode saved successfully for food:', foodId);
-                    resolve(barcodeData);
-                };
-
-                request.onerror = () => {
-                    console.error('Failed to save barcode:', request.error);
-                    reject(request.error);
+                getRequest.onerror = () => {
+                    console.error('Failed to check existing barcode:', getRequest.error);
+                    reject(getRequest.error);
                 };
             });
         } catch (error) {
@@ -132,7 +144,7 @@ const BarcodeDB = {
     },
 
     // Update barcode image (modification allowed)
-    async updateBarcodeImage(foodId, newImageBase64) {
+    async updateBarcodeImage(foodId, newImageBase64, barcodeValue = null) {
         try {
             await this.ensureDB();
 
@@ -148,6 +160,9 @@ const BarcodeDB = {
 
                     if (existingData) {
                         existingData.imageData = newImageBase64;
+                        if (barcodeValue !== null) {
+                            existingData.barcodeValue = barcodeValue;
+                        }
                         existingData.updatedAt = new Date().toISOString();
 
                         const updateRequest = objectStore.put(existingData);
@@ -163,7 +178,7 @@ const BarcodeDB = {
                         };
                     } else {
                         // If doesn't exist, create new
-                        this.saveBarcodeImage(foodId, newImageBase64)
+                        this.saveBarcodeImage(foodId, newImageBase64, barcodeValue)
                             .then(resolve)
                             .catch(reject);
                     }

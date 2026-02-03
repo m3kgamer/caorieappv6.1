@@ -29,10 +29,10 @@ class HistoryManager {
           <svg class="w-20 h-20 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <p class="text-xl mb-2">No history yet</p>
-          <p class="text-sm">Your saved calculations will appear here</p>
+          <p class="text-xl mb-2">لا يوجد سجل حتى الآن</p>
+          <p class="text-sm">حساباتك المحفوظة ستظهر هنا</p>
           <a href="index.html" class="inline-block mt-4 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:shadow-lg transition-all">
-            Start Calculating
+            ابدأ الحساب
           </a>
         </div>
       `;
@@ -51,12 +51,12 @@ class HistoryManager {
 
     this.historyList.innerHTML = history.map((entry, index) => {
       const date = new Date(entry.date);
-      const formattedDate = date.toLocaleDateString('en-US', {
+      const formattedDate = date.toLocaleDateString('ar-SA', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
       });
-      const formattedTime = date.toLocaleTimeString('en-US', {
+      const formattedTime = date.toLocaleTimeString('ar-SA', {
         hour: '2-digit',
         minute: '2-digit'
       });
@@ -76,9 +76,9 @@ class HistoryManager {
             </button>
           </div>
 
-          <!-- Foods List -->
+          <!-- الأطعمة -->
           <div class="mb-4 p-4 bg-white bg-opacity-50 rounded-xl">
-            <h4 class="text-sm font-semibold text-gray-700 mb-2">Foods:</h4>
+            <h4 class="text-sm font-semibold text-gray-700 mb-2">الأطعمة:</h4>
             <ul class="space-y-1">
               ${entry.foods.map(food => `
                 <li class="text-sm text-gray-600">
@@ -93,23 +93,23 @@ class HistoryManager {
           <div class="grid grid-cols-3 gap-3">
             <div class="text-center p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
               <div class="text-xl font-bold text-orange-600">${entry.totals.calories}</div>
-              <div class="text-xs text-gray-600 uppercase mt-1">Calories</div>
+              <div class="text-xs text-gray-600 uppercase mt-1">سعرات</div>
             </div>
             <div class="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-              <div class="text-xl font-bold text-blue-600">${entry.totals.protein}g</div>
-              <div class="text-xs text-gray-600 uppercase mt-1">Protein</div>
+              <div class="text-xl font-bold text-blue-600">${entry.totals.protein}جم</div>
+              <div class="text-xs text-gray-600 uppercase mt-1">بروتين</div>
             </div>
             <div class="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
-              <div class="text-xl font-bold text-green-600">${entry.totals.carbs}g</div>
-              <div class="text-xs text-gray-600 uppercase mt-1">Carbs</div>
+              <div class="text-xl font-bold text-green-600">${entry.totals.carbs}جم</div>
+              <div class="text-xs text-gray-600 uppercase mt-1">كربوهيدرات</div>
             </div>
             <div class="text-center p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl">
-              <div class="text-xl font-bold text-yellow-600">${entry.totals.fat}g</div>
-              <div class="text-xs text-gray-600 uppercase mt-1">Fat</div>
+              <div class="text-xl font-bold text-yellow-600">${entry.totals.fat}جم</div>
+              <div class="text-xs text-gray-600 uppercase mt-1">دهون</div>
             </div>
-            <div class="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl col-span-2">
-              <div class="text-xl font-bold text-purple-600">${entry.totals.salt}g</div>
-              <div class="text-xs text-gray-600 uppercase mt-1">Salt</div>
+            <div class="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl col-span-2 text-right px-4">
+              <div class="text-xl font-bold text-purple-600">${entry.totals.salt}جم</div>
+              <div class="text-xs text-gray-600 uppercase mt-1">ملح</div>
             </div>
           </div>
         </div>
@@ -118,18 +118,18 @@ class HistoryManager {
   }
 
   deleteEntry(id) {
-    if (confirm('Are you sure you want to delete this entry?')) {
+    if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
       StorageManager.deleteCalculation(id);
       this.renderHistory();
-      this.showToast('Entry deleted successfully!', 'success');
+      this.showToast('تم حذف السجل بنجاح!', 'success');
     }
   }
 
   clearAllHistory() {
-    if (confirm('Are you sure you want to clear all history? This action cannot be undone.')) {
+    if (confirm('هل أنت متأكد من مسح السجل بالكامل؟ لا يمكن التراجع عن هذا الإجراء.')) {
       StorageManager.clearHistory();
       this.renderHistory();
-      this.showToast('All history cleared!', 'success');
+      this.showToast('تم مسح السجل بالكامل!', 'success');
     }
   }
 
